@@ -146,3 +146,62 @@ def enterPlayerTile():
         pygame.display.update()
         MAINCLOCK.tick(FPS)
 
+
+def drawInfo(board, playerTile, computerTile, turn):
+    # Рисует очки и чья очередь в нижней части экрана.
+    scores = getScoreOfBoard(board)
+    scoreSurf = FONT.render("Очки игрока: ", True, TEXTCOLOR)
+    scoreRect = scoreSurf.get_rect()
+    scoreRect.bottomright = (WINDOWWIDTH - 50, WINDOWHEIGHT - 425)
+    DISPLAYSURF.blit(scoreSurf, scoreRect)
+
+    scoreSurf = FONT.render("%s" % (str(scores[playerTile])), True, TEXTCOLOR)
+    scoreRect = scoreSurf.get_rect()
+    scoreRect.bottomright = (WINDOWWIDTH - 15, WINDOWHEIGHT - 425)
+    DISPLAYSURF.blit(scoreSurf, scoreRect)
+
+    scoreSurf = FONT.render("Очки ", True, TEXTCOLOR)
+    scoreRect = scoreSurf.get_rect()
+    scoreRect.bottomright = (WINDOWWIDTH - 185, WINDOWHEIGHT - 350)
+    DISPLAYSURF.blit(scoreSurf, scoreRect)
+
+    scoreSurf = FONT.render("компьютера: ", True, TEXTCOLOR)
+    scoreRect = scoreSurf.get_rect()
+    scoreRect.bottomright = (WINDOWWIDTH - 50, WINDOWHEIGHT - 320)
+    DISPLAYSURF.blit(scoreSurf, scoreRect)
+
+    scoreSurf = FONT.render("%s" % (str(scores[computerTile])), True, TEXTCOLOR)
+    scoreRect = scoreSurf.get_rect()
+    scoreRect.bottomright = (WINDOWWIDTH - 15, WINDOWHEIGHT - 320)
+    DISPLAYSURF.blit(scoreSurf, scoreRect)
+
+    scoreSurf = FONT.render("Ход ", True, TEXTCOLOR)
+    scoreRect = scoreSurf.get_rect()
+    scoreRect.bottomright = (WINDOWWIDTH - 197, WINDOWHEIGHT - 250)
+    DISPLAYSURF.blit(scoreSurf, scoreRect)
+
+    scoreSurf = FONT.render("%s" % (turn.title()), True, TEXTCOLOR)
+    scoreRect = scoreSurf.get_rect()
+    scoreRect.bottomright = (WINDOWWIDTH - 63, WINDOWHEIGHT - 220)
+    DISPLAYSURF.blit(scoreSurf, scoreRect)
+
+
+def getScoreOfBoard(board):
+    # Определение счета, считая фишки.
+    xscore = 0
+    oscore = 0
+    for x in range(BOARDWIDTH):
+        for y in range(BOARDHEIGHT):
+            if board[x][y] == WHITE_TILE:
+                xscore += 1
+            if board[x][y] == BLACK_TILE:
+                oscore += 1
+    return {WHITE_TILE: xscore, BLACK_TILE: oscore}
+
+
+def checkForQuit():
+    for event in pygame.event.get((QUIT, KEYUP)):  # цикл обработки событий
+        if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
+            pygame.quit()
+            sys.exit()
+
