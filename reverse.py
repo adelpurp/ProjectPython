@@ -1,5 +1,3 @@
-# https://github.com/adelpurp/ProjectPython.git
-
 import random, sys, pygame, time, copy
 from pygame.locals import *
 
@@ -111,4 +109,40 @@ def resetBoard(board):
     board[3][4] = BLACK_TILE
     board[4][3] = BLACK_TILE
     board[4][4] = WHITE_TILE
+
+
+def enterPlayerTile():
+    # Рисует текст и обрабатывает события щелчка мыши, позволяя игроку выбрать нужный цвет.
+    # Возвращает [WHITE_TILE, BLACK_TILE], если игрок выбирает быть белым, [BLACK_TILE, WHITE_TILE], если черный.
+
+    # Создание текста.
+    textSurf = FONT.render('Какой фишкой предпочтёте играть?', True, TEXTCOLOR, TEXTBGCOLOR1)
+    textRect = textSurf.get_rect()
+    textRect.center = (int(WINDOWWIDTH / 2) - 110, int(WINDOWHEIGHT / 3))
+
+    xSurf = BIGFONT.render('Белой', True, TEXTCOLOR, TEXTBGCOLOR1)
+    xRect = xSurf.get_rect()
+    xRect.center = (int(WINDOWWIDTH / 2) - 325, int(WINDOWHEIGHT / 2) - 40)
+
+    oSurf = BIGFONT.render('Чёрной', True, TEXTCOLOR, TEXTBGCOLOR1)
+    oRect = oSurf.get_rect()
+    oRect.center = (int(WINDOWWIDTH / 2) + 100, int(WINDOWHEIGHT / 2) - 40)
+
+    while True:
+        # Продолжайте цикл до тех пор, пока игрок не нажмет на цвет.
+        checkForQuit()
+        for event in pygame.event.get():  # цикл обработки событий
+            if event.type == MOUSEBUTTONUP:
+                mousex, mousey = event.pos
+                if xRect.collidepoint((mousex, mousey)):
+                    return [WHITE_TILE, BLACK_TILE]
+                elif oRect.collidepoint((mousex, mousey)):
+                    return [BLACK_TILE, WHITE_TILE]
+
+        # Рисовка экрана.
+        DISPLAYSURF.blit(textSurf, textRect)
+        DISPLAYSURF.blit(xSurf, xRect)
+        DISPLAYSURF.blit(oSurf, oRect)
+        pygame.display.update()
+        MAINCLOCK.tick(FPS)
 
