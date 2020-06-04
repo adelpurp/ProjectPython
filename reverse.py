@@ -75,7 +75,7 @@ def drawBoard(board):
         endy = (y * SPACESIZE) + YMARGIN
         pygame.draw.line(DISPLAYSURF, GRIDLINECOLOR, (startx, starty), (endx, endy))
 
-    # Рисовка чёрных и белых кругов или подсказок.
+    # Рисовка чёрных и белых фишек или подсказок.
     for x in range(BOARDWIDTH):
         for y in range(BOARDHEIGHT):
             centerx, centery = translateBoardToPixelCoord(x, y)
@@ -148,7 +148,7 @@ def enterPlayerTile():
 
 
 def drawInfo(board, playerTile, computerTile, turn):
-    # Рисует очки и чья очередь в нижней части экрана.
+    # Рисует очки и чья очередь в правой части экрана.
     scores = getScoreOfBoard(board)
     scoreSurf = FONT.render("Очки игрока: ", True, TEXTCOLOR)
     scoreRect = scoreSurf.get_rect()
@@ -206,9 +206,7 @@ def checkForQuit():
             sys.exit()
 
 
-
-
-def isOnBoard(x, y):    # вставить
+def isOnBoard(x, y):
     # Возвращает True, если координаты находятся на доске.
     return x >= 0 and x < BOARDWIDTH and y >= 0 and y < BOARDHEIGHT
 
@@ -219,7 +217,7 @@ def isValidMove(board, tile, xstart, ystart):
     if board[xstart][ystart] != EMPTY_SPACE or not isOnBoard(xstart, ystart):
         return False
 
-    board[xstart][ystart] = tile  # временно устанавливает плитку на доску.
+    board[xstart][ystart] = tile  # временно устанавливает фишку на доску.
 
     if tile == WHITE_TILE:
         otherTile = BLACK_TILE
@@ -295,7 +293,7 @@ def getSpaceClicked(mousex, mousey):
 
 
 def animateTileChange(tilesToFlip, tileColor, additionalTile):
-    # Рисовать кружок туда, куда нажали. (Иначе придётся перерисовывать всю доску.)
+    # Рисовать фишку туда, куда нажали. (Иначе придётся перерисовывать всю доску.)
     if tileColor == WHITE_TILE:
         additionalTileColor = MilkPunch
     else:
@@ -376,7 +374,7 @@ def getComputerMove(board, computerTile):
 def runGame():
     # Играет одну игру реверси каждый раз, когда эта функция вызывается.
 
-    # Reset the board and game.
+    # Перезагрузка доски.
     mainBoard = getNewBoard()
     resetBoard(mainBoard)
     showHints = False
@@ -411,7 +409,7 @@ def runGame():
                     boardToDraw = mainBoard
 
                 checkForQuit()
-                for event in pygame.event.get():  # event handling loop
+                for event in pygame.event.get():  # цикл обработки событий
                     if event.type == MOUSEBUTTONUP:
                         # Обработка события щелчка мыши
                         mousex, mousey = event.pos
@@ -442,7 +440,6 @@ def runGame():
             if getValidMoves(mainBoard, computerTile) != []:
                 # Настраивается только на ход компьютера, если он может сделать ход.
                 turn = 'компьютера'
-        # --------------------------------------------------------------------------
         else:
             # Ход компьютера:
             if getValidMoves(mainBoard, computerTile) == []:
@@ -469,6 +466,56 @@ def runGame():
                 # Устанавливается только на ход игрока, если он может сделать ход.
                 turn = 'игрока'
 
+    # Показать итоговый счет.
+    drawBoard(mainBoard)
+    scores = getScoreOfBoard(mainBoard)
+
+    # Определение текста сообщения для отображения.
+    if scores[playerTile] > scores[computerTile]:
+        text = 'Вы победили компьютер на %s очков! Поздравляем!' % \
+               (scores[playerTile] - scores[computerTile])
+    elif scores[playerTile] < scores[computerTile]:
+        text = 'Проигрыш. Компьютер побил тебя на %s очков.' % \
+               (scores[computerTile] - scores[playerTile])
+    else:
+        text = 'В игре была ничья!'
+
+    textSurf = FONT.render(text, True, TEXTCOLOR, TEXTBGCOLOR1)
+    textRect = textSurf.get_rect()
+    textRect.center = (int(WINDOWWIDTH / 2) - 50, int(WINDOWHEIGHT / 2) - 50)
+    DISPLAYSURF.blit(textSurf, textRect)
+
+    # Спрашивает «Сыграете ещё раз?» текст с кнопками Да и Нет.
+    text2Surf = BIGFONT.render('Сыграете ещё раз?', True, TEXTCOLOR, TEXTBGCOLOR1)
+    text2Rect = text2Surf.get_rect()
+    text2Rect.center = (int(WINDOWWIDTH / 2) - 110, int(WINDOWHEIGHT / 2) + 30)
+
+    # Создание кнопки "Да".
+    yesSurf = BIGFONT.render('Да', True, TEXTCOLOR, TEXTBGCOLOR1)
+    yesRect = yesSurf.get_rect()
+    yesRect.center = (int(WINDOWWIDTH / 2) - 240, int(WINDOWHEIGHT / 2) + 120)
+
+    # Создание кнопки "Нет".
+    noSurf = BIGFONT.render('Нет', True, TEXTCOLOR, TEXTBGCOLOR1)
+    noRect = noSurf.get_rect()
+    noRect.center = (int(WINDOWWIDTH / 2) + 15, int(WINDOWHEIGHT / 2) + 120)
+
+    while True:
+        # Обработка события, пока пользователь не нажмет Да или Нет.
+        checkForQuit()
+        for event in pygame.event.get():  # цикл обработки событий
+            if event.type == MOUSEBUTTONUP:
+                mousex, mousey = event.pos
+                if yesRect.collidepoint((mousex, mousey)):
+                    return True
+                elif noRect.collidepoint((mousex, mousey)):
+                    return False
+        DISPLAYSURF.blit(textSurf, textRect)
+        DISPLAYSURF.blit(text2Surf, text2Rect)
+        DISPLAYSURF.blit(yesSurf, yesRect)
+        DISPLAYSURF.blit(noSurf, noRect)
+        pygame.display.update()
+        MAINCLOCK.tick(FPS)
 
 
 if __name__ == '__main__':
